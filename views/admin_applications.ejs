@@ -1,0 +1,20 @@
+<%- include('partials/head', { title: 'Monitor Applications' }) %>
+<div class="container">
+  <h1>All applications</h1>
+  <div class="card">
+    <table>
+      <tr><th>ID</th><th>Applicant</th><th>Scheme</th><th>Status</th><th>Assigned To</th><th></th></tr>
+      <% apps.forEach(a => { %>
+        <tr>
+          <td><%= a.application_code %></td>
+          <td><%= a.applicant_name %></td>
+          <td><%= a.scheme_name %></td>
+          <td><span class="badge badge-status"><%= a.status %></span></td>
+          <td class="small text-muted"><%= a.assigned_name || 'Unassigned' %></td>
+          <td><a href="/applications/<%= a.id %>" class="small">View →</a></td>
+        </tr>
+      <% }) %>
+    </table>
+  </div>
+</div>
+<%- include('partials/foot') %>

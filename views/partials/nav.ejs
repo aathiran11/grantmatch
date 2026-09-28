@@ -1,0 +1,44 @@
+<nav class="navbar">
+  <a href="/" class="brand">
+    <svg class="mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="20" cy="20" r="18.5" stroke="currentColor" stroke-width="1.6"/>
+      <circle cx="20" cy="20" r="13.5" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M13 20.5L17.5 25L27.5 14.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    GrantMatch
+  </a>
+  <div class="nav-links">
+    <% if (user) { %>
+      <% if (user.role === 'USER') { %>
+        <a href="/schemes/discover">Discover schemes</a>
+        <a href="/applications">My applications</a>
+        <a href="/profile">Profile</a>
+      <% } else if (user.role === 'NGO' || user.role === 'VOLUNTEER') { %>
+        <a href="/ngo">Verification dashboard</a>
+        <a href="/ngo/assist">Assist a citizen</a>
+      <% } else if (user.role === 'ADMIN') { %>
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/schemes">Schemes</a>
+        <a href="/admin/applications">Applications</a>
+        <a href="/admin/users">Users</a>
+      <% } %>
+      <a href="/notifications" id="notifBell">Notifications<span id="notifCount" class="notif-count" style="display:none;"></span></a>
+      <span class="badge-role"><%= user.role %></span>
+      <a href="/logout">Log out</a>
+    <% } else { %>
+      <a href="/login">Log in</a>
+      <a href="/register" class="btn btn-small">Get started</a>
+    <% } %>
+  </div>
+</nav>
+<% if (user) { %>
+<script>
+  fetch('/api/notifications/unread-count').then(r => r.json()).then(d => {
+    if (d.count > 0) {
+      const el = document.getElementById('notifCount');
+      el.textContent = d.count > 9 ? '9+' : d.count;
+      el.style.display = 'inline-block';
+    }
+  }).catch(() => {});
+</script>
+<% } %>

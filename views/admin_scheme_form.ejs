@@ -1,0 +1,154 @@
+<%- include('partials/head', { title: scheme ? 'Edit Scheme' : 'New Scheme' }) %>
+<div class="container">
+  <h1><%= scheme ? 'Edit scheme' : 'Create new scheme' %></h1>
+
+  <div class="card">
+    <form method="POST" action="<%= scheme ? '/admin/schemes/' + scheme.id + '/edit' : '/admin/schemes/new' %>"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="field">
+        <label>Scheme Name</label>
+        <input type="text" name="name" value="<%= scheme ? scheme.name : '' %>" required>
+      </div>
+      <div class="field">
+        <label>Description</label>
+        <textarea name="description" rows="3"><%= scheme ? scheme.description : '' %></textarea>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label>Department</label>
+          <input type="text" name="department" value="<%= scheme ? scheme.department : '' %>">
+        </div>
+        <div class="field">
+          <label>Level</label>
+          <select name="level">
+            <option <%= scheme && scheme.level==='Central' ? 'selected' : '' %>>Central</option>
+            <option <%= scheme && scheme.level==='State' ? 'selected' : '' %>>State</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label>State (or "All")</label>
+          <input type="text" name="state" value="<%= scheme ? scheme.state : 'All' %>">
+        </div>
+        <div class="field">
+          <label>Category</label>
+          <input type="text" name="category" value="<%= scheme ? scheme.category : '' %>" placeholder="e.g. Education, Housing, Agriculture">
+        </div>
+      </div>
+      <div class="field">
+        <label>Benefits</label>
+        <textarea name="benefits" rows="2"><%= scheme ? scheme.benefits : '' %></textarea>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label>Start Date</label>
+          <input type="date" name="start_date" value="<%= scheme ? scheme.start_date : '' %>">
+        </div>
+        <div class="field">
+          <label>End Date</label>
+          <input type="date" name="end_date" value="<%= scheme ? scheme.end_date : '' %>">
+        </div>
+      </div>
+      <div class="field">
+        <label>Official Application URL</label>
+        <input type="text" name="official_url" value="<%= scheme ? scheme.official_url : '' %>">
+      </div>
+      <div class="field">
+        <label>Application Instructions</label>
+        <textarea name="application_instructions" rows="2"><%= scheme ? scheme.application_instructions : '' %></textarea>
+      </div>
+      <div class="field">
+        <label>Contact Information</label>
+        <input type="text" name="contact_info" value="<%= scheme ? scheme.contact_info : '' %>">
+      </div>
+      <% if (scheme) { %>
+      <div class="field">
+        <label>Status</label>
+        <select name="status">
+          <option <%= scheme.status==='Active'?'selected':'' %>>Active</option>
+          <option <%= scheme.status==='Inactive'?'selected':'' %>>Inactive</option>
+          <option <%= scheme.status==='Expired'?'selected':'' %>>Expired</option>
+        </select>
+      </div>
+      <% } %>
+      <button class="btn" type="submit"><%= scheme ? 'Save Changes' : 'Create Scheme & Continue' %></button>
+    </form>
+  </div>
+
+  <% if (scheme) { %>
+    <!-- Required Documents -->
+    <div class="card">
+      <h2>Required Documents</h2>
+      <% docs.forEach(d => { %>
+        <div class="doc-row">
+          <span class="small"><%= d.document_name %></span>
+          <form method="POST" action="/admin/documents/<%= d.id %>/delete"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button type="submit" class="btn btn-small btn-secondary">Remove</button>
+          </form>
+        </div>
+      <% }) %>
+      <form method="POST" action="/admin/schemes/<%= scheme.id %>/documents" style="display:flex; gap:8px; margin-top:12px;"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <input type="text" name="document_name" placeholder="e.g. Income Certificate" required>
+        <button class="btn btn-small" type="submit">Add document</button>
+      </form>
+    </div>
+
+    <!-- Eligibility Rule Builder -->
+    <div class="card">
+      <h2>Eligibility Rule Builder</h2>
+      <p class="small text-muted">Rule groups are combined with <strong>AND</strong> across groups (all groups must pass). Within a group, choose whether its conditions need <strong>AND</strong> (all) or <strong>OR</strong> (any) to pass.</p>
+
+      <% groups.forEach(g => { %>
+        <div class="rule-group">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="tag"><%= g.logic_type %> group</span>
+            <form method="POST" action="/admin/rulegroups/<%= g.id %>/delete" onsubmit="return confirm('Delete this rule group and all its conditions?')"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:12px;">Delete group</button>
+            </form>
+          </div>
+          <% g.conditions.forEach(c => { %>
+            <div class="rule-condition">
+              <span><strong><%= c.field %></strong> <%= c.operator %> <strong><%= c.value %></strong></span>
+              <form method="POST" action="/admin/rules/<%= c.id %>/delete"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:12px;">✕</button>
+              </form>
+            </div>
+          <% }) %>
+          <form method="POST" action="/admin/rulegroups/<%= g.id %>/rules" style="display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; align-items:center;"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <select name="field" style="width:auto;">
+              <option value="age">Age</option>
+              <option value="annual_income">Annual Income</option>
+              <option value="occupation">Occupation</option>
+              <option value="state">State</option>
+              <option value="gender">Gender</option>
+              <option value="category">Category</option>
+              <option value="disability_status">Disability Status</option>
+              <option value="education">Education</option>
+              <option value="family_members">Family Members</option>
+              <option value="land_owner">Land Owner</option>
+            </select>
+            <select name="operator" style="width:auto;">
+              <option value=">=">&gt;=</option>
+              <option value="<=">&lt;=</option>
+              <option value=">">&gt;</option>
+              <option value="<">&lt;</option>
+              <option value="=">=</option>
+              <option value="!=">!=</option>
+            </select>
+            <input type="text" name="value" placeholder="Value" style="width:120px;" required>
+            <button class="btn btn-small" type="submit">Add condition</button>
+          </form>
+        </div>
+      <% }) %>
+
+      <form method="POST" action="/admin/schemes/<%= scheme.id %>/rulegroups" style="display:flex; gap:8px; margin-top:16px;"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <select name="logic_type" style="width:auto;">
+          <option value="AND">AND group (all conditions must pass)</option>
+          <option value="OR">OR group (any condition passes)</option>
+        </select>
+        <button class="btn btn-small" type="submit">+ Add Rule Group</button>
+      </form>
+    </div>
+  <% } %>
+</div>
+<%- include('partials/foot') %>

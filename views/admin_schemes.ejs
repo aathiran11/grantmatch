@@ -1,0 +1,29 @@
+<%- include('partials/head', { title: 'Manage Schemes' }) %>
+<div class="container">
+  <div class="top-row" style="display:flex; justify-content:space-between; align-items:center;">
+    <h1>Manage schemes</h1>
+    <a href="/admin/schemes/new" class="btn">+ New Scheme</a>
+  </div>
+
+  <div class="card">
+    <table>
+      <tr><th>Name</th><th>Level</th><th>State</th><th>Category</th><th>Status</th><th></th></tr>
+      <% schemes.forEach(s => { %>
+        <tr>
+          <td><%= s.name %></td>
+          <td><%= s.level %></td>
+          <td><%= s.state %></td>
+          <td><%= s.category %></td>
+          <td><span class="badge <%= s.status==='Active' ? 'badge-approved' : 'badge-pending' %>"><%= s.status %></span></td>
+          <td>
+            <a href="/admin/schemes/<%= s.id %>/edit" class="small">Edit</a> ·
+            <form method="POST" action="/admin/schemes/<%= s.id %>/delete" style="display:inline;" onsubmit="return confirm('Delete this scheme permanently?')"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:13px;padding:0;">Delete</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </table>
+  </div>
+</div>
+<%- include('partials/foot') %>

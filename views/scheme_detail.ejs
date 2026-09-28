@@ -1,0 +1,62 @@
+<%- include('partials/head', { title: scheme.name }) %>
+<div class="container">
+  <a href="/schemes/discover" class="small">← Back to discover</a>
+  <h1 style="margin-top:10px;"><%= scheme.name %></h1>
+  <div class="scheme-meta"><%= scheme.department %> · <%= scheme.level %> · <%= scheme.state %> · <%= scheme.category %></div>
+
+  <div class="grid-2" style="margin-top:20px; align-items:start;">
+    <div>
+      <div class="card">
+        <h3>Description</h3>
+        <p><%= scheme.description %></p>
+        <h3>Benefits</h3>
+        <p><%= scheme.benefits %></p>
+        <h3>How to apply</h3>
+        <p class="small"><%= scheme.application_instructions %></p>
+        <p class="small text-muted">Validity: <%= scheme.start_date %> to <%= scheme.end_date %></p>
+        <% if (scheme.official_url) { %><p class="small">Official link: <a href="<%= scheme.official_url %>" target="_blank"><%= scheme.official_url %></a></p><% } %>
+        <p class="small text-muted">Contact: <%= scheme.contact_info %></p>
+      </div>
+
+      <div class="card">
+        <h3>Required documents</h3>
+        <ul>
+          <% docs.forEach(d => { %><li class="small"><%= d.document_name %></li><% }) %>
+          <% if (docs.length === 0) { %><li class="small text-muted">No specific documents listed.</li><% } %>
+        </ul>
+      </div>
+    </div>
+
+    <div>
+      <% if (evalResult) { %>
+        <div class="card">
+          <h3>Why am I eligible?</h3>
+          <% if (evalResult.eligible) { %>
+            <span class="stamp stamp-eligible"><span class="dot"></span>You are eligible</span>
+            <p class="small" style="margin-top:8px;">You meet <%= evalResult.metConditions %>/<%= evalResult.totalConditions %> criteria for this scheme.</p>
+          <% } else { %>
+            <span class="stamp stamp-not-eligible"><span class="dot"></span>Not currently eligible</span>
+            <p class="small" style="margin-top:8px;">You meet <%= evalResult.metConditions %>/<%= evalResult.totalConditions %> criteria.</p>
+          <% } %>
+          <ul class="reason-list">
+            <% evalResult.reasons.forEach(r => { %>
+              <li class="<%= r.type === 'pass' ? 'reason-pass' : 'reason-fail' %>"><%= r.text %></li>
+            <% }) %>
+          </ul>
+
+          <% if (existingApp) { %>
+            <a href="/applications/<%= existingApp.id %>" class="btn btn-block">View my application (<%= existingApp.status %>)</a>
+          <% } else { %>
+            <form method="POST" action="/schemes/<%= scheme.id %>/apply"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button class="btn btn-block" type="submit">Apply for this scheme</button>
+            </form>
+            <% if (!evalResult.eligible) { %>
+              <p class="small text-muted" style="margin-top:8px;">You can still apply, but approval is unlikely unless your profile changes or the reviewer finds an exception.</p>
+            <% } %>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+<%- include('partials/foot') %>

@@ -1,0 +1,58 @@
+<%- include('partials/head', { title: 'Discover Schemes' }) %>
+<div class="container">
+  <h1>Find schemes for me</h1>
+  <p class="text-muted">Matched against your saved profile. <a href="/profile">Update your profile</a> to improve match accuracy.</p>
+
+  <% if (!hasProfile) { %>
+    <div class="alert alert-info">Your profile looks incomplete — <a href="/profile">complete it here</a> for accurate eligibility results.</div>
+  <% } %>
+
+  <div class="card">
+    <form method="GET" action="/schemes/discover" class="grid-3">
+      <div class="field" style="margin-bottom:0;">
+        <label>Search</label>
+        <input type="text" name="search" value="<%= filters.search || '' %>" placeholder="Scheme name or keyword">
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>State</label>
+        <input type="text" name="state" value="<%= filters.state || '' %>" placeholder="e.g. Tamil Nadu">
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>Category</label>
+        <input type="text" name="category" value="<%= filters.category || '' %>" placeholder="e.g. Education">
+      </div>
+      <div style="grid-column: 1/-1;">
+        <button class="btn" type="submit">Filter</button>
+        <a href="/schemes/discover" class="btn btn-secondary">Reset</a>
+      </div>
+    </form>
+  </div>
+
+  <p class="text-muted small"><%= results.length %> scheme<%= results.length === 1 ? '' : 's' %> found</p>
+
+  <% results.forEach(r => { 
+       const pct = r.evalResult.totalConditions ? Math.round((r.evalResult.metConditions / r.evalResult.totalConditions) * 100) : 100;
+       let stampClass = 'stamp-not-eligible', stampText = 'Not eligible';
+       if (r.evalResult.eligible) { stampClass = 'stamp-eligible'; stampText = 'Eligible'; }
+       else if (pct >= 50) { stampClass = 'stamp-partial'; stampText = 'Partial match'; }
+  %>
+    <div class="scheme-item">
+      <div class="top-row">
+        <div>
+          <h3><a href="/schemes/<%= r.scheme.id %>"><%= r.scheme.name %></a></h3>
+          <div class="scheme-meta"><%= r.scheme.department %> · <%= r.scheme.level %> · <%= r.scheme.state %> · <%= r.scheme.category %></div>
+        </div>
+        <span class="stamp <%= stampClass %>"><span class="dot"></span><%= stampText %></span>
+      </div>
+      <p class="small"><%= r.scheme.description %></p>
+      <div class="small text-muted"><%= r.evalResult.metConditions %>/<%= r.evalResult.totalConditions %> criteria matched</div>
+      <div class="progress-bar"><div class="progress-bar-fill" style="width:<%= pct %>%;"></div></div>
+      <a href="/schemes/<%= r.scheme.id %>" class="btn btn-small btn-secondary">View details</a>
+    </div>
+  <% }) %>
+
+  <% if (results.length === 0) { %>
+    <div class="card"><p class="text-muted">No schemes match your filters. Try broadening your search.</p></div>
+  <% } %>
+</div>
+<%- include('partials/foot') %>

@@ -1,0 +1,151 @@
+<%- include('partials/head', { title: 'Application ' + application.application_code }) %>
+<div class="container">
+  <h1><%= application.scheme_name %></h1>
+  <div class="scheme-meta">Application ID: <strong><%= application.application_code %></strong> · Applicant: <%= application.applicant_name %></div>
+  <span class="stamp stamp-status" style="margin-top:8px; display:inline-block;"><%= application.status %></span>
+  <% if (application.assister_name) { %>
+    <span class="stamp stamp-status" style="margin-top:8px; display:inline-block; margin-left:6px;">Assisted by <%= application.assister_name %> (<%= application.assister_role %>)</span>
+  <% } %>
+
+  <div class="grid-2" style="margin-top:20px; align-items:start;">
+    <div>
+      <!-- Status Timeline -->
+      <div class="card">
+        <h3>Application Timeline</h3>
+        <ul class="timeline">
+          <% history.forEach(h => { %>
+            <li>
+              <strong><%= h.status %></strong>
+              <div class="small text-muted"><%= fmtDate(h.changed_at) %> <% if (h.changed_by_name) { %>· by <%= h.changed_by_name %><% } %></div>
+              <% if (h.remarks) { %><div class="small"><%= h.remarks %></div><% } %>
+            </li>
+          <% }) %>
+        </ul>
+      </div>
+
+      <!-- Eligibility snapshot -->
+      <% if (evalSnapshot) { %>
+      <div class="card">
+        <h3>Eligibility Snapshot (at time of application)</h3>
+        <p class="small text-muted"><%= evalSnapshot.metConditions %>/<%= evalSnapshot.totalConditions %> criteria matched</p>
+        <ul class="reason-list">
+          <% evalSnapshot.reasons.forEach(r => { %>
+            <li class="<%= r.type === 'pass' ? 'reason-pass' : 'reason-fail' %>"><%= r.text %></li>
+          <% }) %>
+        </ul>
+      </div>
+      <% } %>
+
+      <!-- Documents -->
+      <div class="card">
+        <h3>Documents</h3>
+        <% docs.forEach(d => { %>
+          <div class="doc-row">
+            <div>
+              <strong class="small"><%= d.document_name %></strong>
+              <div class="small text-muted">
+                Status:
+                <span class="badge <%= d.verification_status==='Verified' ? 'badge-approved' : d.verification_status==='Rejected' ? 'badge-rejected' : 'badge-pending' %>"><%= d.verification_status %></span>
+                <% if (d.file_path) { %> · <a href="<%= d.file_path %>" target="_blank">View file</a><% } %>
+              </div>
+              <% if (d.remarks) { %><div class="small text-muted">Remarks: <%= d.remarks %></div><% } %>
+            </div>
+
+            <div>
+              <% if (user.role === 'USER' && user.id === application.user_id) { %>
+                <form method="POST" action="/applications/<%= application.id %>/upload" enctype="multipart/form-data" style="display:flex; gap:6px; align-items:center;"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <input type="hidden" name="doc_id" value="<%= d.id %>">
+                  <input type="file" name="document_file" required style="max-width:180px;">
+                  <button class="btn btn-small" type="submit">Upload</button>
+                </form>
+              <% } %>
+              <% if ((user.role === 'NGO' || user.role === 'VOLUNTEER' || user.role === 'ADMIN') && d.file_path) { %>
+                <form method="POST" action="/ngo/documents/<%= d.id %>/verify" style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <input type="hidden" name="application_id" value="<%= application.id %>">
+                  <select name="status" style="width:auto;">
+                    <option value="Verified">Verified</option>
+                    <option value="Rejected">Rejected</option>
+                    <option value="Needs Resubmission">Needs Resubmission</option>
+                  </select>
+                  <input type="text" name="remarks" placeholder="Remarks (optional)" style="width:160px;">
+                  <button class="btn btn-small btn-secondary" type="submit">Update</button>
+                </form>
+              <% } %>
+            </div>
+          </div>
+        <% }) %>
+        <% if (docs.length === 0) { %><p class="small text-muted">No documents required or uploaded yet.</p><% } %>
+
+        <% if (user.role === 'USER' && user.id === application.user_id) { %>
+          <hr style="border:none;border-top:1px solid var(--border);margin:14px 0;">
+          <form method="POST" action="/applications/<%= application.id %>/upload" enctype="multipart/form-data"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="field">
+              <label>Upload Additional Document</label>
+              <input type="text" name="document_name" placeholder="Document name" required>
+            </div>
+            <div class="field">
+              <input type="file" name="document_file" required>
+            </div>
+            <button class="btn btn-small" type="submit">Upload</button>
+          </form>
+        <% } %>
+      </div>
+    </div>
+
+    <div>
+      <!-- Admin / NGO controls -->
+      <% if (user.role === 'ADMIN' || user.role === 'NGO' || user.role === 'VOLUNTEER') { %>
+        <div class="card">
+          <h3>Update status</h3>
+          <form method="POST" action="/applications/<%= application.id %>/status"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="field">
+              <label>New Status</label>
+              <select name="status">
+                <% ['Draft','Submitted','Document Verification','Verified','Forwarded','Approved','Rejected'].forEach(s => { %>
+                  <option value="<%= s %>" <%= application.status===s ? 'selected' : '' %>><%= s %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="field">
+              <label>Remarks</label>
+              <textarea name="remarks" rows="2" placeholder="Optional remarks"></textarea>
+            </div>
+            <button class="btn btn-small btn-block" type="submit">Update status</button>
+          </form>
+        </div>
+      <% } %>
+
+      <% if (user.role === 'NGO' || user.role === 'VOLUNTEER') { %>
+        <div class="card">
+          <h3>Assignment</h3>
+          <% if (!application.assigned_to) { %>
+            <form method="POST" action="/ngo/applications/<%= application.id %>/claim"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button class="btn btn-small btn-block" type="submit">Claim this application</button>
+            </form>
+          <% } else { %>
+            <p class="small text-muted">Assigned.</p>
+          <% } %>
+        </div>
+      <% } %>
+
+      <% if (user.role === 'ADMIN') { %>
+        <div class="card">
+          <h3>Reassign</h3>
+          <form method="POST" action="/admin/applications/<%= application.id %>/assign"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="field">
+              <label>Assign to NGO/Volunteer</label>
+              <select name="assigned_to">
+                <option value="">-- Unassigned --</option>
+                <% volunteers.forEach(v => { %>
+                  <option value="<%= v.id %>" <%= application.assigned_to===v.id ? 'selected' : '' %>><%= v.name %> (<%= v.role %>)</option>
+                <% }) %>
+              </select>
+            </div>
+            <button class="btn btn-small btn-block" type="submit">Reassign</button>
+          </form>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+<%- include('partials/foot') %>

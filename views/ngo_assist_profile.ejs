@@ -1,0 +1,67 @@
+<%- include('partials/head', { title: 'Assisting ' + citizen.name }) %>
+<div class="container">
+  <a href="/ngo/assist" class="small">← Back to Search</a>
+  <h1 style="margin-top:10px;">Assisting: <%= citizen.name %></h1>
+  <div class="scheme-meta"><%= citizen.email %><% if (citizen.phone) { %> · <%= citizen.phone %><% } %></div>
+
+  <% if (!hasProfile) { %>
+    <div class="alert alert-info">This citizen hasn't completed their profile yet. Ask them for their details, or have them log in to complete it themselves, before you can check eligibility.</div>
+  <% } else { %>
+    <div class="card">
+      <h3>Citizen's Profile Summary</h3>
+      <div class="grid-3 small">
+        <div><strong>Age:</strong> <%= profile.date_of_birth ? Math.floor((Date.now() - new Date(profile.date_of_birth)) / (1000*60*60*24*365.25)) : '—' %></div>
+        <div><strong>State:</strong> <%= profile.state || '—' %></div>
+        <div><strong>Occupation:</strong> <%= profile.occupation || '—' %></div>
+        <div><strong>Annual Income:</strong> ₹<%= profile.annual_income || '—' %></div>
+        <div><strong>Category:</strong> <%= profile.category || '—' %></div>
+        <div><strong>Gender:</strong> <%= profile.gender || '—' %></div>
+      </div>
+    </div>
+
+    <h2>Eligible schemes for <%= citizen.name %></h2>
+    <% results.forEach(r => {
+         const pct = r.evalResult.totalConditions ? Math.round((r.evalResult.metConditions / r.evalResult.totalConditions) * 100) : 100;
+         let stampClass = 'stamp-not-eligible', stampText = 'Not eligible';
+         if (r.evalResult.eligible) { stampClass = 'stamp-eligible'; stampText = 'Eligible'; }
+         else if (pct >= 50) { stampClass = 'stamp-partial'; stampText = 'Partial match'; }
+         const alreadyApplied = appliedSchemeIds.has(r.scheme.id);
+    %>
+      <div class="scheme-item">
+        <div class="top-row">
+          <div>
+            <h3><%= r.scheme.name %></h3>
+            <div class="scheme-meta"><%= r.scheme.department %> · <%= r.scheme.state %> · <%= r.scheme.category %></div>
+          </div>
+          <span class="stamp <%= stampClass %>"><span class="dot"></span><%= stampText %></span>
+        </div>
+        <div class="small text-muted"><%= r.evalResult.metConditions %>/<%= r.evalResult.totalConditions %> criteria matched</div>
+        <div class="progress-bar"><div class="progress-bar-fill" style="width:<%= pct %>%;"></div></div>
+
+        <% if (alreadyApplied) { %>
+          <p class="small text-muted" style="margin-top:8px;">Already applied to this scheme.</p>
+        <% } else { %>
+          <form method="POST" action="/ngo/assist/<%= citizen.id %>/apply/<%= r.scheme.id %>" style="margin-top:8px;"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="btn btn-small" type="submit">Apply on their behalf</button>
+          </form>
+        <% } %>
+      </div>
+    <% }) %>
+  <% } %>
+
+  <% if (existingApps.length > 0) { %>
+    <h2 style="margin-top:24px;">Existing Applications</h2>
+    <% existingApps.forEach(a => { %>
+      <div class="scheme-item">
+        <div class="top-row">
+          <div>
+            <h3><a href="/applications/<%= a.id %>"><%= a.scheme_name %></a></h3>
+            <div class="scheme-meta">ID: <%= a.application_code %></div>
+          </div>
+          <span class="badge badge-status"><%= a.status %></span>
+        </div>
+      </div>
+    <% }) %>
+  <% } %>
+</div>
+<%- include('partials/foot') %>

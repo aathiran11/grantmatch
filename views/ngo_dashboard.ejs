@@ -1,0 +1,46 @@
+<%- include('partials/head', { title: 'Verification Dashboard' }) %>
+<div class="container">
+  <div class="top-row" style="display:flex; justify-content:space-between; align-items:center;">
+    <h1>NGO & volunteer dashboard</h1>
+    <a href="/ngo/assist" class="btn">Assist a citizen</a>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-box"><div class="num"><%= stats.assigned %></div><div class="label">Applications Assigned</div></div>
+    <div class="stat-box"><div class="num"><%= stats.pending %></div><div class="label">Pending Verification</div></div>
+    <div class="stat-box"><div class="num"><%= stats.completed %></div><div class="label">Completed</div></div>
+  </div>
+
+  <h2>My Assigned Applications</h2>
+  <% if (assigned.length === 0) { %><p class="text-muted small">No applications assigned to you yet — claim one from the pool below.</p><% } %>
+  <% assigned.forEach(a => { %>
+    <div class="scheme-item">
+      <div class="top-row">
+        <div>
+          <h3><a href="/applications/<%= a.id %>"><%= a.scheme_name %></a></h3>
+          <div class="scheme-meta">Applicant: <%= a.applicant_name %> · ID: <%= a.application_code %></div>
+        </div>
+        <span class="badge badge-status"><%= a.status %></span>
+      </div>
+      <a href="/applications/<%= a.id %>" class="btn btn-small btn-secondary">Review</a>
+    </div>
+  <% }) %>
+
+  <h2 style="margin-top:30px;">Unassigned Applications Pool</h2>
+  <% if (unassigned.length === 0) { %><p class="text-muted small">No unassigned applications right now.</p><% } %>
+  <% unassigned.forEach(a => { %>
+    <div class="scheme-item">
+      <div class="top-row">
+        <div>
+          <h3><%= a.scheme_name %></h3>
+          <div class="scheme-meta">Applicant: <%= a.applicant_name %> · ID: <%= a.application_code %></div>
+        </div>
+        <span class="badge badge-status"><%= a.status %></span>
+      </div>
+      <form method="POST" action="/ngo/applications/<%= a.id %>/claim"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="btn btn-small" type="submit">Claim for Verification</button>
+      </form>
+    </div>
+  <% }) %>
+</div>
+<%- include('partials/foot') %>

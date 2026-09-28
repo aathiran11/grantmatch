@@ -1,0 +1,21 @@
+<%- include('partials/head', { title: 'My Applications' }) %>
+<div class="container">
+  <h1>My applications</h1>
+  <% if (apps.length === 0) { %>
+    <div class="card"><p class="text-muted">You haven't applied to any schemes yet. <a href="/schemes/discover">Discover schemes →</a></p></div>
+  <% } %>
+  <% apps.forEach(a => { %>
+    <div class="scheme-item">
+      <div class="top-row">
+        <div>
+          <h3><a href="/applications/<%= a.id %>"><%= a.scheme_name %></a></h3>
+          <div class="scheme-meta">Application ID: <%= a.application_code %></div>
+        </div>
+        <span class="badge badge-status"><%= a.status %></span>
+      </div>
+      <p class="small text-muted">Submitted: <%= a.submitted_at ? fmtDate(a.submitted_at) : 'Not submitted' %></p>
+      <a href="/applications/<%= a.id %>" class="btn btn-small btn-secondary">Track application</a>
+    </div>
+  <% }) %>
+</div>
+<%- include('partials/foot') %>

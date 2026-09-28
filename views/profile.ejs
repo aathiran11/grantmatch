@@ -1,0 +1,95 @@
+<%- include('partials/head', { title: 'My Profile' }) %>
+<div class="container">
+  <h1>My profile</h1>
+  <p class="text-muted">This information is used by the eligibility engine to match you with schemes. The more complete it is, the better your matches.</p>
+  <% if (saved) { %><div class="alert alert-success">Profile saved successfully.</div><% } %>
+
+  <div class="card">
+    <form method="POST" action="/profile"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="grid-2">
+        <div class="field">
+          <label>Date of Birth</label>
+          <input type="date" name="date_of_birth" value="<%= profile.date_of_birth || '' %>" required>
+        </div>
+        <div class="field">
+          <label>Gender</label>
+          <select name="gender">
+            <option value="">Select</option>
+            <option <%= profile.gender==='Male'?'selected':'' %>>Male</option>
+            <option <%= profile.gender==='Female'?'selected':'' %>>Female</option>
+            <option <%= profile.gender==='Other'?'selected':'' %>>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label>State</label>
+          <input type="text" name="state" value="<%= profile.state || '' %>" placeholder="e.g. Tamil Nadu" required>
+        </div>
+        <div class="field">
+          <label>District</label>
+          <input type="text" name="district" value="<%= profile.district || '' %>">
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label>Occupation</label>
+          <input type="text" name="occupation" value="<%= profile.occupation || '' %>" placeholder="e.g. Farmer, Student, Unemployed">
+        </div>
+        <div class="field">
+          <label>Annual Family Income (₹)</label>
+          <input type="number" name="annual_income" value="<%= profile.annual_income || '' %>" placeholder="e.g. 180000">
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label>Education</label>
+          <select name="education">
+            <option value="">Select</option>
+            <% ['Below 10th','10th Pass','Higher Secondary','Graduate','Post Graduate','Other'].forEach(o => { %>
+              <option <%= profile.education===o?'selected':'' %>><%= o %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="field">
+          <label>Social/Economic Category</label>
+          <select name="category">
+            <option value="">Select</option>
+            <% ['General','OBC','SC','ST','EWS'].forEach(o => { %>
+              <option <%= profile.category===o?'selected':'' %>><%= o %></option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label>Disability Status</label>
+          <select name="disability_status">
+            <option <%= profile.disability_status==='No'?'selected':'' %>>No</option>
+            <option <%= profile.disability_status==='Yes'?'selected':'' %>>Yes</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Number of Family Members</label>
+          <input type="number" name="family_members" value="<%= profile.family_members || '' %>">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Do you own agricultural/residential land?</label>
+        <select name="land_owner">
+          <option <%= profile.land_owner==='No'?'selected':'' %>>No</option>
+          <option <%= profile.land_owner==='Yes'?'selected':'' %>>Yes</option>
+        </select>
+      </div>
+
+      <button class="btn" type="submit">Save profile</button>
+      <button class="btn btn-secondary" type="submit" formaction="/profile?redirect=discover">Save & Discover Schemes →</button>
+    </form>
+  </div>
+</div>
+<%- include('partials/foot') %>

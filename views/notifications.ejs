@@ -1,0 +1,13 @@
+<%- include('partials/head', { title: 'Notifications' }) %>
+<div class="container">
+  <h1>Notifications</h1>
+  <% if (list.length === 0) { %><div class="card"><p class="text-muted">No notifications yet.</p></div><% } %>
+  <% list.forEach(n => { %>
+    <div class="card" style="padding:16px;">
+      <strong class="small"><%= n.title %></strong>
+      <p class="small text-muted" style="margin:4px 0;"><%= n.message %></p>
+      <span class="small text-muted"><%= fmtDate(n.created_at) %></span>
+    </div>
+  <% }) %>
+</div>
+<%- include('partials/foot') %>

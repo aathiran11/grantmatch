@@ -1,0 +1,37 @@
+<%- include('partials/head', { title: 'Admin Dashboard' }) %>
+<div class="container">
+  <h1>Admin dashboard</h1>
+
+  <div class="stat-grid">
+    <div class="stat-box"><div class="num"><%= stats.totalUsers %></div><div class="label">Total Users</div></div>
+    <div class="stat-box"><div class="num"><%= stats.activeSchemes %></div><div class="label">Active Schemes</div></div>
+    <div class="stat-box"><div class="num"><%= stats.totalApplications %></div><div class="label">Applications</div></div>
+    <div class="stat-box"><div class="num"><%= stats.pendingVerification %></div><div class="label">Pending Verification</div></div>
+    <div class="stat-box"><div class="num"><%= stats.approved %></div><div class="label">Approved</div></div>
+    <div class="stat-box"><div class="num"><%= stats.rejected %></div><div class="label">Rejected</div></div>
+    <div class="stat-box"><div class="num"><%= stats.ngoCount %></div><div class="label">NGOs/Volunteers</div></div>
+  </div>
+
+  <div class="grid-3" style="margin-bottom: 24px;">
+    <a href="/admin/schemes" class="btn btn-block">Manage schemes</a>
+    <a href="/admin/applications" class="btn btn-block btn-secondary">Monitor applications</a>
+    <a href="/admin/users" class="btn btn-block btn-secondary">Manage users</a>
+  </div>
+
+  <div class="card">
+    <h2>Recent Applications</h2>
+    <table>
+      <tr><th>ID</th><th>Applicant</th><th>Scheme</th><th>Status</th><th></th></tr>
+      <% recentApps.forEach(a => { %>
+        <tr>
+          <td><%= a.application_code %></td>
+          <td><%= a.applicant_name %></td>
+          <td><%= a.scheme_name %></td>
+          <td><span class="badge badge-status"><%= a.status %></span></td>
+          <td><a href="/applications/<%= a.id %>" class="small">View →</a></td>
+        </tr>
+      <% }) %>
+    </table>
+  </div>
+</div>
+<%- include('partials/foot') %>

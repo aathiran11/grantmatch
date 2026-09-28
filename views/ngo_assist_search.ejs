@@ -1,0 +1,29 @@
+<%- include('partials/head', { title: 'Assist a Citizen' }) %>
+<div class="container">
+  <h1>Assist a citizen</h1>
+  <p class="text-muted">Search for a citizen you're helping in person to check their eligibility and submit an application on their behalf — useful when they can't self-serve online.</p>
+
+  <div class="card">
+    <form method="GET" action="/ngo/assist" style="display:flex; gap:10px;">
+      <input type="text" name="q" value="<%= q || '' %>" placeholder="Search by name, email, or phone" style="flex:1;">
+      <button class="btn" type="submit">Search</button>
+    </form>
+  </div>
+
+  <% if (q && citizens.length === 0) { %>
+    <div class="card"><p class="text-muted">No citizens found matching "<%= q %>".</p></div>
+  <% } %>
+
+  <% citizens.forEach(c => { %>
+    <div class="scheme-item">
+      <div class="top-row">
+        <div>
+          <h3><%= c.name %></h3>
+          <div class="scheme-meta"><%= c.email %><% if (c.phone) { %> · <%= c.phone %><% } %></div>
+        </div>
+        <a href="/ngo/assist/<%= c.id %>" class="btn btn-small">View profile &amp; assist</a>
+      </div>
+    </div>
+  <% }) %>
+</div>
+<%- include('partials/foot') %>

@@ -1,0 +1,55 @@
+<%- include('partials/head', { title: 'Home' }) %>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div>
+      <h1>Every scheme you qualify for, checked against your actual details.</h1>
+      <p>Tell us your situation once. We check it against every scheme's real eligibility rules and show you exactly which lines you meet — then help you apply, with NGO and volunteer support if you need it.</p>
+      <a href="/register" class="btn">Get started free</a>
+      <a href="/login" class="btn btn-secondary" style="border-color:#4A5A7A;color:#C7CEDC;margin-left:10px;">Log in</a>
+    </div>
+    <svg class="seal-illustration" width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="90" cy="90" r="82" stroke="#4A5A7A" stroke-width="1.5"/>
+      <circle cx="90" cy="90" r="82" stroke="#C17817" stroke-width="1.5" stroke-dasharray="2 6"/>
+      <circle cx="90" cy="90" r="60" stroke="#4A5A7A" stroke-width="1.5"/>
+      <path d="M60 91L80 111L122 66" stroke="#C17817" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+</div>
+
+<div class="container">
+  <div class="ledger-stats">
+    <div class="stat"><div class="num"><%= schemeCount %></div><div class="label">Active schemes</div></div>
+    <div class="stat"><div class="num"><%= userCount %></div><div class="label">Citizens registered</div></div>
+    <div class="stat"><div class="num"><%= appCount %></div><div class="label">Applications processed</div></div>
+  </div>
+
+  <div class="grid-3">
+    <div>
+      <h3>Personalized matching</h3>
+      <p class="small text-muted">Every active scheme is checked against your saved profile, with a plain breakdown of exactly which criteria you meet and which you don't.</p>
+    </div>
+    <div>
+      <h3>NGO &amp; volunteer support</h3>
+      <p class="small text-muted">Verified volunteers and NGOs can review your documents in person, or apply on your behalf if you can't self-serve online.</p>
+    </div>
+    <div>
+      <h3>Transparent tracking</h3>
+      <p class="small text-muted">Follow your application from submission to decision on a full status timeline — no guessing where things stand.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top: 32px;">
+    <h2>Demo login credentials</h2>
+    <p class="small text-muted">This build is seeded with sample schemes and users so you can explore every role immediately.</p>
+    <table>
+      <tr><th>Role</th><th>Email</th><th>Password</th></tr>
+      <tr><td>Citizen</td><td>citizen@grantmatch.gov</td><td>citizen123</td></tr>
+      <tr><td>NGO</td><td>ngo@grantmatch.gov</td><td>ngo123</td></tr>
+      <tr><td>Volunteer</td><td>volunteer@grantmatch.gov</td><td>vol123</td></tr>
+      <tr><td>Admin</td><td>admin@grantmatch.gov</td><td>admin123</td></tr>
+    </table>
+  </div>
+</div>
+
+<%- include('partials/foot') %>

@@ -1,0 +1,25 @@
+{
+  "name": "grantmatch",
+  "version": "1.0.0",
+  "description": "GrantMatch - Government Scheme Discovery, Eligibility & Application Platform",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "seed": "node src/seed.js",
+    "add-real-schemes": "node src/add_real_schemes.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-rate-limit": "^8.7.0",
+    "express-session": "^1.18.0",
+    "helmet": "^8.3.0",
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.13.0"
+  }
+}
